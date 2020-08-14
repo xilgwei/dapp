@@ -50,14 +50,9 @@ App = {
 
   initContract: function() {
     $.getJSON('Adoption.json', function(data) {
-        // Get the necessary contract artifact file and instantiate it with @truffle/contract
         var AdoptionArtifact = data;
         App.contracts.Adoption = TruffleContract(AdoptionArtifact);
-        
-        // Set the provider for our contract
         App.contracts.Adoption.setProvider(App.web3Provider);
-
-        // Use our contract to retrieve and mark the adopted pets
         return App.markAdopted();
     });
 
@@ -76,6 +71,8 @@ App = {
 
         return adoptionInstance.getAdopters.call();
     }).then(function(adopters) {
+        console.log('adopters = ' + adopters)
+        console.log('account = ' + account)
         for (i = 0; i < adopters.length; i++) {
             if (adopters[i] !== '0x0000000000000000000000000000000000000000') {
                 $('.panel-pet').eq(i).find('button').text('Success').attr('disabled', true);
@@ -102,10 +99,12 @@ App = {
         
         App.contracts.Adoption.deployed().then(function(instance) {
             adoptionInstance = instance;
+            console.log(adoptionInstance)
             console.log("petId1 = " + petId)
             // Execute adopt as a transaction by sending account
             return adoptionInstance.adopt(petId, {from: account});
         }).then(function(result) {
+            console.log(result)
             return App.markAdopted();
         }).catch(function(err) {
             console.log("error = " + err.message);
